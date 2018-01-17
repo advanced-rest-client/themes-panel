@@ -1,0 +1,99 @@
+<!doctype html>
+<!--
+@license
+Copyright (c) 2015 The Polymer Project Authors. All rights reserved.
+This code may only be used under the BSD style license found at http://polymer.github.io/LICENSE.txt
+The complete set of authors may be found at http://polymer.github.io/AUTHORS.txt
+The complete set of contributors may be found at http://polymer.github.io/CONTRIBUTORS.txt
+Code distributed by Google as part of the polymer project is also
+subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
+-->
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1, user-scalable=yes">
+  <title>themes-panel demo</title>
+  <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+  <link rel="import" href="../../iron-demo-helpers/demo-pages-shared-styles.html">
+  <link rel="import" href="../../iron-demo-helpers/demo-snippet.html">
+  <link rel="import" href="../../paper-toast/paper-toast.html">
+  <link rel="import" href="../themes-panel.html">
+  <script src="../../chance/chance.js"></script>
+  <style is="custom-style" include="demo-pages-shared-styles">
+  .vertical-section-container {
+    max-width: 600px;
+  }
+  :root {
+    --primary-color: #00A2DF;
+    --arc-font-headline: {
+      @apply --paper-font-headline;
+    };
+    --arc-font-subhead: {
+      @apply --paper-font-subhead;
+    }
+    --arc-font-body1: {
+      @apply --paper-font-body1;
+    };
+  }
+  </style>
+</head>
+<body unresolved>
+  <div class="vertical-section-container centered">
+    <h3>The `themes-panel`</h3>
+    <demo-snippet>
+      <template>
+        <themes-panel></themes-panel>
+      </template>
+    </demo-snippet>
+  </div>
+  <paper-toast id="activate" text="Activate theme event handled."></paper-toast>
+  <paper-toast id="create" text="Create theme event handled."></paper-toast>
+  <paper-toast id="edit" text="Edit theme event handled."></paper-toast>
+  <script>
+  /* global chance */
+  (function() {
+    var defaultTheme = {
+      name: 'Default theme',
+      description: 'Advanced REST Client default theme',
+      main: 'arc-theme.html',
+      path: 'detault-theme/arc-theme.html',
+      author: 'The Advanced REST client authors <arc@mulesoft.com>'
+    };
+    function genThemeInfo() {
+      var name = chance.word();
+      return {
+        name: name + ' theme',
+        description: chance.sentence(),
+        main: 'arc-theme.html',
+        path: name + '/arc-theme.html',
+        author: chance.name()
+      };
+    }
+    function generateThemes(e) {
+      e.preventDefault();
+      var themes = [defaultTheme];
+      for (var i = 0; i < 5; i++) {
+        themes.push(genThemeInfo());
+      }
+      e.detail.result = Promise.resolve(themes);
+    }
+    function activeThemeInfo(e) {
+      e.preventDefault();
+      e.detail.result = Promise.resolve(defaultTheme);
+    }
+    window.addEventListener('themes-list', generateThemes);
+    window.addEventListener('theme-active-info', activeThemeInfo);
+    window.addEventListener('theme-activate', function() {
+      document.getElementById('activate').opened = true;
+    });
+    window.addEventListener('theme-editor-create', function() {
+      document.getElementById('create').opened = true;
+    });
+    window.addEventListener('theme-editor-edit', function() {
+      document.getElementById('edit').opened = true;
+    });
+  })();
+  </script>
+</body>
+</html>
