@@ -100,7 +100,7 @@ Custom property | Description | Default
       <paper-listbox class="dropdown-content" selected="{{activeTheme}}" attr-for-selected="data-id" on-selected-changed="_selectionChanged">
         <template is="dom-repeat" items="[[themes]]">
           <template is="dom-if" if="[[item.hasDescription]]">
-            <paper-item data-id$="[[item._id]]" label="[[item.name]]">
+            <paper-item data-id$="[[item._id]]" label$="[[item.name]]">
               <paper-item-body two-line>
                 <div>[[item.name]]</div>
                 <div secondary>[[item.description]]</div>
