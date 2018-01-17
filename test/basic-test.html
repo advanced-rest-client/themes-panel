@@ -59,7 +59,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         setTimeout(function() {
           assert.isTrue(spy.called);
           done();
-        }, 30); // ~16ms
+        }, 100); // ~16ms
       });
 
       test('Dispatches themes-list custom event', function() {
@@ -84,7 +84,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
           assert.typeOf(element.themes, 'array');
           assert.isAbove(element.themes.length, 5);
           done();
-        }, 10);
+        }, 100);
       });
 
       test('themes property contains IDs', function(done) {
@@ -92,7 +92,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         setTimeout(function() {
           assert.typeOf(element.themes[0]._id, 'string');
           done();
-        }, 10);
+        }, 100);
       });
 
       test('themes property contains hasDescription', function(done) {
@@ -100,7 +100,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         setTimeout(function() {
           assert.typeOf(element.themes[0].hasDescription, 'boolean');
           done();
-        }, 10);
+        }, 100);
       });
 
       test('Dispatches theme-active-info custom event', function() {
@@ -124,7 +124,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         setTimeout(function() {
           assert.typeOf(element.activeTheme, 'string');
           done();
-        }, 10);
+        }, 100);
       });
 
       test('theme-active-info does not fire theme-activate event', function(done) {
@@ -145,7 +145,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         element = fixture('data');
         setTimeout(function() {
           done();
-        }, 25);
+        }, 50);
       });
 
       teardown(function() {
