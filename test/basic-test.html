@@ -59,7 +59,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         setTimeout(function() {
           assert.isTrue(spy.called);
           done();
-        }, 30); // ~16ms
+        }, 100); // ~16ms
       });
 
       test('Dispatches themes-list custom event', function() {
@@ -145,7 +145,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         element = fixture('data');
         setTimeout(function() {
           done();
-        }, 25);
+        }, 50);
       });
 
       teardown(function() {
