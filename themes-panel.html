@@ -254,7 +254,7 @@ Custom property | Description | Default
         this.$.noSelection.opened = true;
         return;
       }
-      var info = this.themes.find(i => i._id = id);
+      var info = this.themes.find(i => i._id === id);
       if (!info) {
         this.$.noSelection.opened = true;
         return;
@@ -269,7 +269,7 @@ Custom property | Description | Default
         return;
       }
       var id = e.detail.value;
-      var info = this.themes.find(i => i._id = id);
+      var info = this.themes.find(i => i._id === id);
       if (!info) {
         this.$.noSelection.opened = true;
         return;
