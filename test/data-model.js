@@ -5,7 +5,8 @@ DataModel.defaultTheme = {
   description: 'Advanced REST Client default theme',
   main: 'arc-theme.html',
   path: 'detault-theme/arc-theme.html',
-  author: 'The Advanced REST client authors <arc@mulesoft.com>'
+  author: 'The Advanced REST client authors <arc@mulesoft.com>',
+  _id: '1234abc'
 };
 DataModel.genThemeInfo = function() {
   var name = chance.word();
@@ -14,7 +15,8 @@ DataModel.genThemeInfo = function() {
     description: chance.sentence(),
     main: 'arc-theme.html',
     path: name + '/arc-theme.html',
-    author: chance.name()
+    author: chance.name(),
+    _id: chance.word()
   };
 };
 DataModel.generateThemes = function(e) {
@@ -27,7 +29,7 @@ DataModel.generateThemes = function(e) {
 };
 DataModel.activeThemeInfo = function(e) {
   e.preventDefault();
-  e.detail.result = Promise.resolve(DataModel.defaultTheme);
+  e.detail.result = Promise.resolve(DataModel.defaultTheme._id);
 };
 DataModel.listen = function() {
   window.addEventListener('themes-list', DataModel.generateThemes);
