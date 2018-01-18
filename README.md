@@ -28,6 +28,7 @@ The object consist with the following properties:
 - **main** `{String}` Theme main file in the theme main directory
 - **path** `{String}` Absolute location of the theme on user's filesystem. If the location is relative then default theme location is used.
 - **description** `{String}` Theme short description.
+- **_id** `{String}` Theme ID.
 
 ### Styling
 `<themes-panel>` provides the following custom properties and mixins for styling:

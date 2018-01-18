@@ -48,11 +48,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
         DataModel.unlisten();
       });
 
-      test('computes theme ID', function() {
-        var id = element.computeThemeId(DataModel.defaultTheme);
-        assert.equal(id, 'Default theme|arc-theme.html|detault-theme/arc-theme.html');
-      });
-
       test('Calls refreshThemes when opened', function(done) {
         var spy = sinon.spy(element, 'refreshThemes');
         element.setAttribute('opened', true);
@@ -153,15 +148,14 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       });
 
       test('Dispatches theme-activate event', function() {
-        var id = element.computeThemeId(element.themes[1]);
+        var id = element.themes[1]._id;
         var eventData;
         element.addEventListener('theme-activate', function clb(e) {
           element.removeEventListener('theme-activate', clb);
           eventData = e.detail;
         });
         element.activeTheme = id;
-        assert.typeOf(eventData.theme, 'object');
-        assert.equal(eventData.theme._id, id);
+        assert.equal(eventData.theme, id);
       });
 
       test('Dispatches theme-editor-create event', function() {
