@@ -1,3 +1,13 @@
+<a name="0.1.4"></a>
+## [0.1.4](https://github.com/advanced-rest-client/themes-panel/compare/0.1.3...0.1.4) (2018-01-31)
+
+
+### Update
+
+* Themes editor is not rendered by default. ([5776483c71a1da8ff49de5502eaf1fb02bcd28be](https://github.com/advanced-rest-client/themes-panel/commit/5776483c71a1da8ff49de5502eaf1fb02bcd28be))
+
+
+
 <a name="0.1.3"></a>
 ## [0.1.3](https://github.com/advanced-rest-client/themes-panel/compare/0.1.2...0.1.3) (2018-01-18)
 
