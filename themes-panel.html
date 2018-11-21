@@ -1,6 +1,6 @@
 <!--
 @license
-Copyright 2016 The Advanced REST client authors <arc@mulesoft.com>
+Copyright 2018 The Advanced REST client authors <arc@mulesoft.com>
 Licensed under the Apache License, Version 2.0 (the "License"); you may not
 use this file except in compliance with the License. You may obtain a copy of
 the License at
@@ -11,15 +11,21 @@ WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 License for the specific language governing permissions and limitations under
 the License.
 -->
-<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../polymer/polymer-element.html">
+<link rel="import" href="../polymer/lib/elements/dom-if.html">
+<link rel="import" href="../polymer/lib/elements/dom-repeat.html">
+<link rel="import" href="../polymer/lib/utils/render-status.html">
 <link rel="import" href="../paper-dropdown-menu/paper-dropdown-menu-light.html">
 <link rel="import" href="../paper-listbox/paper-listbox.html">
 <link rel="import" href="../paper-item/paper-item.html">
 <link rel="import" href="../paper-item/paper-item-body.html">
 <link rel="import" href="../paper-button/paper-button.html">
+<link rel="import" href="../paper-input/paper-input.html">
+<link rel="import" href="../paper-spinner/paper-spinner.html">
 <link rel="import" href="../iron-flex-layout/iron-flex-layout.html">
-<link rel="import" href="../openable-panel-behavior/openable-panel-behavior.html">
 <link rel="import" href="../paper-toast/paper-toast.html">
+<link rel="import" href="../arc-icons/arc-icons.html">
+<link rel="import" href="../paper-icon-button/paper-icon-button.html">
 <!--
 A panel to display themes installed in the application.
 
@@ -71,6 +77,7 @@ Custom property | Description | Default
     <style>
     :host {
       display: block;
+      @apply --arc-font-body1;
       @apply --themes-panel;
     }
 
@@ -93,100 +100,186 @@ Custom property | Description | Default
       color: var(--warning-contrast-color, #fff);
       @apply --error-toast;
     }
+
+    .add-form {
+      @apply --layout-horizontal;
+      @apply --layout-center;
+    }
+
+    .add-form paper-input {
+      @apply --layout-flex;
+    }
+
+    .selection-actions {
+      @apply --layout-horizontal;
+      @apply --layout-end;
+    }
+
+    .remove-theme {
+      margin-left: 8px;
+    }
     </style>
     <header>
       <h2>Themes</h2>
     </header>
-    <paper-dropdown-menu-light label="Active theme">
-      <paper-listbox class="dropdown-content" selected="{{activeTheme}}" attr-for-selected="data-id" on-selected-changed="_selectionChanged">
-        <template is="dom-repeat" items="[[themes]]">
-          <template is="dom-if" if="[[item.hasDescription]]">
-            <paper-item data-id$="[[item._id]]" label$="[[item.name]]">
-              <paper-item-body two-line>
-                <div>[[item.name]]</div>
-                <div secondary>[[item.description]]</div>
-              </paper-item-body>
-            </paper-item>
-          </template>
-          <template is="dom-if" if="[[!item.hasDescription]]">
-            <paper-item data-id$="[[item._id]]">[[item.name]]</paper-item>
-          </template>
+
+    <section class="theme-selector">
+      <div class="selection-actions">
+        <paper-dropdown-menu-light label="Active theme" horizontal-align="left">
+          <paper-listbox slot="dropdown-content" selected="{{activeTheme}}" attr-for-selected="data-id" on-selected-changed="_selectionChanged">
+            <template is="dom-repeat" items="[[themes]]">
+              <template is="dom-if" if="[[item.description]]">
+                <paper-item data-id$="[[item._id]]" label$="[[item.title]]">
+                  <paper-item-body two-line>
+                    <div>[[item.title]]</div>
+                    <div secondary>[[item.description]]</div>
+                  </paper-item-body>
+                </paper-item>
+              </template>
+              <template is="dom-if" if="[[!item.description]]">
+                <paper-item data-id$="[[item._id]]">[[item.title]]</paper-item>
+              </template>
+            </template>
+          </paper-listbox>
+        </paper-dropdown-menu-light>
+        <template is="dom-if" if="[[!isDefaultTheme]]">
+          <paper-icon-button icon="arc:delete" title="Remove theme from ARC" class="remove-theme" on-click="_uninstall"></paper-icon-button>
         </template>
-      </paper-listbox>
-    </paper-dropdown-menu-light>
-    <template is="dom-if" if="[[themeEditor]]">
-      <section class="theme-editor">
-        <h3>Theme editor</h3>
-        <p>You can create new theme or edit currently activated in the application theme.</p>
-        <p>Learn more about editing theme in Advanced REST Client in <a href="https://github.com/advanced-rest-client/arc-electron/wiki/Creating-theme-for-Advanced-REST-Client" target="_blank" on-tap="_openThemeDoc">our documentation</a>.</p>
-        <div>
-          <paper-button raised on-tap="_openEditor" data-action="create-theme">Create theme</paper-button>
-          <paper-button raised on-tap="_openEditorCurrent" data-action="edit-theme">Edit active theme</paper-button>
+      </div>
+    </section>
+    <template is="dom-if" if="[[addEnabled]]">
+      <section class="add-theme">
+        <h3>Install theme</h3>
+        <p>Install new theme by providing its NPM name, GitHub repository as <code>owner/name#branch</code>, or absolute path to the theme on your local filesystem.</p>
+        <div class="add-form">
+          <paper-input label="Theme to install" value="{{_themeInstall}}"></paper-input>
+          <paper-button on-click="_install">Install</paper-button>
+          <paper-spinner active="[[_installPending]]"></paper-spinner>
         </div>
       </section>
     </template>
     <paper-toast id="noModel" text="Model not found. Please, report an issue." class="error-toast"></paper-toast>
     <paper-toast id="noSelection" text="Theme is not activated. Select theme and try again." class="error-toast"></paper-toast>
+    <paper-toast id="noName" text="Add theme name to install it." class="error-toast"></paper-toast>
+    <paper-toast id="defaultDelete" text="Preinstalled themes cannot be removed." class="error-toast"></paper-toast>
     <paper-toast id="errorToast" class="error-toast"></paper-toast>
   </template>
   <script>
-  Polymer({
-    is: 'themes-panel',
+  class ThemesPanel extends Polymer.Element {
+    static get is() {
+      return 'themes-panel';
+    }
 
-    behaviors: [ArcBehaviors.OpenablePanelBehavior],
+    static get properties() {
+      return {
+        /**
+         * List of themes.
+         */
+        themes: Array,
+        // ID of selected theme.
+        activeTheme: String,
+        // When set it won't check for themes list when added to the DOM.
+        noAuto: Boolean,
+        /**
+         * When set it renders input field to install a theme.
+         */
+        addEnabled: Boolean,
+        /**
+         * Name of the theme to install
+         */
+        _themeInstall: String,
+        /**
+         * When true the app is installing the eheme.
+         */
+        _installPending: Boolean,
+        /**
+         * Computed value, true if selected theme is one of default themes.
+         */
+        isDefaultTheme: {
+          type: Boolean,
+          value: true,
+          computed: '_computeIsDefault(themes.*, activeTheme)'
+        }
+      };
+    }
 
-    properties: {
-      /**
-       * List of themes.
-       */
-      themes: Array,
-      // ID of selected theme.
-      activeTheme: String,
-      // If true then theme editor controls are rendered.
-      themeEditor: Boolean
-    },
+    constructor() {
+      super();
+      this._activatedHandler = this._activatedHandler.bind(this);
+    }
 
-    observers: [
-      '_updateThemes(_isOpened)'
-    ],
+    connectedCallback() {
+      super.connectedCallback();
+      window.addEventListener('theme-activated', this._activatedHandler);
+      if (!this.noAuto && !this.themes) {
+        Polymer.RenderStatus.afterNextRender(this, this.refresh);
+      }
+    }
 
-    _updateThemes: function(_isOpened) {
-      if (!_isOpened) {
+    disconnectedCallback() {
+      super.disconnectedCallback();
+      window.removeEventListener('theme-activated', this._activatedHandler);
+    }
+
+    _activatedHandler(e) {
+      const {id} = e.detail;
+      if (!id) {
         return;
       }
-      if (!this.themes) {
-        Polymer.RenderStatus.afterNextRender(this, this.refreshThemes);
+      if (id !== this.activeTheme) {
+        this.activeTheme = id;
       }
-    },
+    }
+
+    _dispatchListEvent() {
+      const e = new CustomEvent('themes-list', {
+        bubbles: true,
+        composed: true,
+        cancelable: true,
+        detail: {}
+      });
+      this.dispatchEvent(e);
+      return e;
+    }
     /**
      * Dispatches `themes-list` custom event to query model for the list of
      * available themes.
      * The event must be cancelled when handled (`e.preventDefault()`).
      * The list of themes should be returned as a Promise added to the `result`
      * property of the `detail` object of the event.
+     *
+     * @return {Promise}
      */
-    refreshThemes: function() {
-      var e = this.fire('themes-list', {}, {
-        cancelable: true,
-        composed: true
-      });
+    refresh() {
+      const e = this._dispatchListEvent();
       if (!e.defaultPrevented) {
         this.$.noModel.opened = true;
-        return;
+        return Promise.reject(new Error('Model not found'));
       }
-      e.detail.result
-      .then(themes => {
+      return e.detail.result
+      .then((themes) => {
         themes = themes || [];
-        themes = themes.map(i => {
+        themes = themes.map((i) => {
           i = Object.assign({}, i);
-          i.hasDescription = !!i.description;
+          i.title = i.title || i.name;
           return i;
         });
         this.set('themes', themes);
         this.getActiveTheme();
       })
-      .catch(cause => this._handlePromiseError(cause));
-    },
+      .catch((cause) => this._handlePromiseError(cause));
+    }
+
+    _dispatchActiveInfoEvent() {
+      const e = new CustomEvent('theme-active-info', {
+        bubbles: true,
+        composed: true,
+        cancelable: true,
+        detail: {}
+      });
+      this.dispatchEvent(e);
+      return e;
+    }
     /**
      * Dispatches `theme-active-info` custom event to query model for currently
      * activated theme. The model should always return theme info object, even
@@ -194,81 +287,158 @@ Custom property | Description | Default
      *
      * The theme info object should be returned as a Promise added to the `result`
      * property of the `detail` object of the event.
+     *
+     * @return {Promise}
      */
-    getActiveTheme: function() {
-      var e = this.fire('theme-active-info', {}, {
-        cancelable: true
-      });
+    getActiveTheme() {
+      const e = this._dispatchActiveInfoEvent();
       if (!e.defaultPrevented) {
         this.$.noModel.opened = true;
-        return;
+        return Promise.reject(new Error('Model not found'));
       }
-      e.detail.result
-      .then(theme => {
+      return e.detail.result
+      .then((theme) => {
         if (!theme) {
           console.error('Current theme info not available.');
           return;
         }
         this.__cancelChange = true;
-        this.set('activeTheme', theme);
+        this.set('activeTheme', theme._id);
         this.__cancelChange = false;
       })
-      .catch(cause => this._handlePromiseError(cause));
-    },
+      .catch((cause) => this._handlePromiseError(cause));
+    }
 
-    _handlePromiseError: function(cause) {
+    _handlePromiseError(cause) {
       this.$.errorToast.text = cause.message;
       this.$.errorToast.opened = true;
-      this.fire('send-analytics', {
-        type: 'exception',
-        description: cause.message || 'Theme data loading error',
-        fatal: false
-      });
+      this.dispatchEvent(new CustomEvent('send-analytics', {
+        bubbles: true,
+        composed: true,
+        detail: {
+          type: 'exception',
+          description: cause.message || 'Theme data loading error',
+          fatal: false
+        }
+      }));
       console.error(cause);
-    },
+    }
 
-    _openThemeDoc: function(e) {
-      var ev = this.fire('open-theme-doc', {}, {
-        cancelable: true
-      });
-      if (ev.defaultPrevented) {
-        e.preventDefault();
-      }
-    },
-
-    _openEditor: function() {
-      this.fire('theme-editor-create');
-    },
-
-    _openEditorCurrent: function() {
-      var id = this.activeTheme;
-      if (!id) {
-        this.$.noSelection.opened = true;
-        return;
-      }
-      var info = this.themes.find(i => i._id === id);
-      if (!info) {
-        this.$.noSelection.opened = true;
-        return;
-      }
-      this.fire('theme-editor-edit', {
-        theme: info
-      });
-    },
-
-    _selectionChanged: function(e) {
+    _selectionChanged(e) {
       if (this.__cancelChange) {
         return;
       }
-      var id = e.detail.value;
-      var info = this.themes.find(i => i._id === id);
+      const id = e.detail.value;
+      const info = this.themes.find((i) => i._id === id);
       if (!info) {
         this.$.noSelection.opened = true;
         return;
       }
-      this.fire('theme-activate', {
-        theme: info._id
+      this._dispatchActivateEvent(info._id);
+    }
+
+    _dispatchActivateEvent(id) {
+      const e = new CustomEvent('theme-activate', {
+        bubbles: true,
+        composed: true,
+        cancelable: true,
+        detail: {
+          theme: id
+        }
       });
+      this.dispatchEvent(e);
+      return e;
+    }
+
+    _install() {
+      const name = this._themeInstall;
+      if (!name) {
+        this.$.noName.opened = true;
+        return Promise.reject(new Error('Name not set'));
+      }
+      const e = this._dispatchInstallEvent(name);
+      if (!e.defaultPrevented) {
+        this.$.noModel.opened = true;
+        return Promise.reject(new Error('Model not found'));
+      }
+      this._installPending = true;
+      return e.detail.result
+      .then((info) => {
+        this._installPending = false;
+        if (this.themes) {
+          this.push('themes', info);
+        } else {
+          this.set('themes', [info]);
+        }
+        return this._dispatchActivateEvent(info._id);
+      })
+      .catch((cause) => {
+        this._installPending = false;
+        return this._handlePromiseError(cause);
+      });
+    }
+
+    _dispatchInstallEvent(name) {
+      const e = new CustomEvent('theme-install', {
+        bubbles: true,
+        composed: true,
+        cancelable: true,
+        detail: {
+          name
+        }
+      });
+      this.dispatchEvent(e);
+      return e;
+    }
+
+    _computeIsDefault(record, activeTheme) {
+      const themes = record && record.base;
+      if (!themes || !activeTheme || !themes.length) {
+        return;
+      }
+      const item = themes.find((item) => item._id === activeTheme);
+      if (!item) {
+        return;
+      }
+      if (typeof item.isDefault === 'undefined') {
+        return;
+      }
+      return item.isDefault;
+    }
+
+    _uninstall() {
+      if (this.isDefaultTheme) {
+        this.$.defaultDelete.opened = true;
+        return Promise.reject(new Error('Cannot delete default theme'));
+      }
+      const e = this._dispatchUninstallEvent(this.activeTheme);
+      if (!e.defaultPrevented) {
+        this.$.noModel.opened = true;
+        return Promise.reject(new Error('Model not found'));
+      }
+      this._installPending = true;
+      return e.detail.result
+      .then(() => {
+        this._installPending = false;
+        return this._dispatchActivateEvent('advanced-rest-client/arc-electron-default-theme');
+      })
+      .catch((cause) => {
+        this._installPending = false;
+        return this._handlePromiseError(cause);
+      });
+    }
+
+    _dispatchUninstallEvent(name) {
+      const e = new CustomEvent('theme-uninstall', {
+        bubbles: true,
+        composed: true,
+        cancelable: true,
+        detail: {
+          name
+        }
+      });
+      this.dispatchEvent(e);
+      return e;
     }
 
     /**
@@ -313,36 +483,19 @@ Custom property | Description | Default
      */
 
     /**
-     * Dispatched when the user requested to open documentation for theme editor.
-     * If handled the event must be cancelled. Otherwise default action is performed
-     * (click on the link).
-     *
-     * @event open-theme-doc
-     */
-
-    /**
-     * Dispatched when the user requested to run theme editor to create a new
-     * theme.
-     *
-     * @event theme-editor-create
-     */
-
-    /**
-     * Dispatched when the user requested to run theme editor to edit installed
-     * theme.
-     *
-     * @event theme-editor-edit
-     * @param {Object} theme The theme infor object. See element description for
-     * morel information.
-     */
-
-    /**
      * Dispatched when the user selected a theme to be activated.
      *
      * @event theme-activate
      * @param {Object} theme The theme infor object. See element description for
      * morel information.
      */
-  });
+
+    /**
+     * Dispatched when the user requests to install new theme.
+     * @event theme-install
+     * @param {String} name A name of the theme to install
+     */
+  }
+  window.customElements.define(ThemesPanel.is, ThemesPanel);
   </script>
 </dom-module>
