@@ -27,46 +27,8 @@ the License.
 <link rel="import" href="../arc-icons/arc-icons.html">
 <link rel="import" href="../paper-icon-button/paper-icon-button.html">
 <!--
-A panel to display themes installed in the application.
 
-The element is an UI for themes logic in the application. It does not contain
-logic to activate or discovery themes. It communicates with the application (model)
-via custom events. See events description for more information. Note that most events
-have to be cancelled.
 
-Once the element is "opened" it queries for list of available themes, if it wasn't
-already. When the list of themes changes call `refreshThemes()` on the element
-to update list of themes in the UI.
-
-### Example
-```
-<themes-panel></themes-panel>
-```
-
-## Theme model
-
-Model for the `Theme` object is similar to `package.json` data model.
-
-The object consist with the following properties:
-
-- **name** `{String}` Theme name
-- **main** `{String}` Theme main file in the theme main directory
-- **path** `{String}` Absolute location of the theme on user's filesystem. If the location is relative then default theme location is used.
-- **description** `{String}` Theme short description.
-- **_id** `{String}` Theme ID.
-
-### Styling
-`<themes-panel>` provides the following custom properties and mixins for styling:
-
-Custom property | Description | Default
-----------------|-------------|----------
-`--themes-panel` | Mixin applied to the element | `{}`
-`--arc-font-headline` | Mixin applied to the header | `{}`
-`--arc-font-subhead` | Mixin applied to the subheader | `{}`
-`--error-toast` | Mixin applied to the error toast | `{}`
-`--empty-info` | Mixin applied to the label rendered when no data is available. | `{}`
-`--warning-primary-color` | Main color of the warning messages | `#FF7043`
-`--warning-contrast-color` | Contrast color for the warning color | `#fff`
 
 @group UI Elements
 @element themes-panel
@@ -165,6 +127,52 @@ Custom property | Description | Default
     <paper-toast id="errorToast" class="error-toast"></paper-toast>
   </template>
   <script>
+    /**
+     * A panel to display themes installed in the application.
+     *
+     * The element is an UI for themes logic in the application. It does not contain
+     * logic to activate or discovery themes. It communicates with the application (model)
+     * via custom events. See events description for more information. Note that most events
+     * have to be cancelled.
+     *
+     * Once the element is "opened" it queries for list of available themes, if it wasn't
+     * already. When the list of themes changes call `refreshThemes()` on the element
+     * to update list of themes in the UI.
+     *
+     * ## Theme model
+     *
+     * The object consist with the following properties:
+     *
+     * - **name** `String` Theme id
+     * - **title** `String` Theme title
+     * - **description** `String` Theme short description.
+     * - **isDefault** `Boolean` True if the theme cannot be uninstalled
+     * - **location** `String` Theme location
+     * - **mainFile** `String` Location to the main file
+     * - **version** `{String}` Theme version number
+     * - **_id** `{String}` Theme datasdtore id (used to find the theme on the list
+     * and to be consisten with other elements. ARC doesn't actually use this property
+     * and it is the same as `name`).
+     *
+     * ### Styling
+     *
+     * `<themes-panel>` provides the following custom properties and mixins for styling:
+     *
+     * Custom property | Description | Default
+     * ----------------|-------------|----------
+     * `--themes-panel` | Mixin applied to the element | `{}`
+     * `--arc-font-headline` | Mixin applied to the header | `{}`
+     * `--arc-font-subhead` | Mixin applied to the subheader | `{}`
+     * `--error-toast` | Mixin applied to the error toast | `{}`
+     * `--empty-info` | Mixin applied to the label rendered when no data is available. | `{}`
+     * `--warning-primary-color` | Main color of the warning messages | `#FF7043`
+     * `--warning-contrast-color` | Contrast color for the warning color | `#fff`
+     *
+     * @customElement
+     * @polymer
+     * @demo demo/index.html
+     * @memberof UiElements
+     */
   class ThemesPanel extends Polymer.Element {
     static get is() {
       return 'themes-panel';
@@ -231,15 +239,78 @@ Custom property | Description | Default
       }
     }
 
-    _dispatchListEvent() {
-      const e = new CustomEvent('themes-list', {
-        bubbles: true,
+    /**
+     * Dispatches a CustomEvent of a `type` with `detail` object.
+     * @param {String} type Event type
+     * @param {Object} detail Object to attach to the event
+     * @return {CustomEvent}
+     */
+    _dispatch(type, detail) {
+      const e = new CustomEvent(type, {
         composed: true,
+        bubbles: true,
         cancelable: true,
-        detail: {}
+        detail
       });
       this.dispatchEvent(e);
       return e;
+    }
+    /**
+     * Dispatches `themes-list` event
+     * @return {CustomEvent}
+     */
+    _dispatchListEvent() {
+      return this._dispatch('themes-list', {});
+    }
+    /**
+     * Dispatches `theme-active-info` event
+     * @return {CustomEvent}
+     */
+    _dispatchActiveInfoEvent() {
+      return this._dispatch('theme-active-info', {});
+    }
+    /**
+     * Dispatches `theme-activate` event
+     * @param {String} theme Theme ID to activate
+     * @return {CustomEvent}
+     */
+    _dispatchActivateEvent(theme) {
+      return this._dispatch('theme-activate', {
+        theme
+      });
+    }
+    /**
+     * Dispatches `theme-install` event
+     * @param {String} name Theme name
+     * @return {CustomEvent}
+     */
+    _dispatchInstallEvent(name) {
+      return this._dispatch('theme-install', {
+        name
+      });
+    }
+    /**
+     * Dispatches `theme-uninstall` event
+     * @param {String} name Theme name
+     * @return {CustomEvent}
+     */
+    _dispatchUninstallEvent(name) {
+      return this._dispatch('theme-uninstall', {
+        name
+      });
+    }
+    /**
+     * Dispatches GA event.
+     * The event's category is `Web sockets`.
+     * @param {String} action Event action.
+     * @return {CustomEvent}
+     */
+    _dispatchGaEvent(action) {
+      return this._dispatch('send-analytics', {
+        type: 'event',
+        category: 'Themes panel',
+        action
+      });
     }
     /**
      * Dispatches `themes-list` custom event to query model for the list of
@@ -258,27 +329,20 @@ Custom property | Description | Default
       }
       return e.detail.result
       .then((themes) => {
-        themes = themes || [];
-        themes = themes.map((i) => {
-          i = Object.assign({}, i);
-          i.title = i.title || i.name;
-          return i;
-        });
-        this.set('themes', themes);
+        this._processListResponse(themes);
         this.getActiveTheme();
       })
       .catch((cause) => this._handlePromiseError(cause));
     }
 
-    _dispatchActiveInfoEvent() {
-      const e = new CustomEvent('theme-active-info', {
-        bubbles: true,
-        composed: true,
-        cancelable: true,
-        detail: {}
+    _processListResponse(themes) {
+      themes = themes || [];
+      themes = themes.map((i) => {
+        i = Object.assign({}, i);
+        i.title = i.title || i.name;
+        return i;
       });
-      this.dispatchEvent(e);
-      return e;
+      this.set('themes', themes);
     }
     /**
      * Dispatches `theme-active-info` custom event to query model for currently
@@ -310,18 +374,15 @@ Custom property | Description | Default
     }
 
     _handlePromiseError(cause) {
-      this.$.errorToast.text = cause.message;
+      const message = cause.message || 'Theme data loading error.';
+      this.$.errorToast.text = message;
       this.$.errorToast.opened = true;
-      this.dispatchEvent(new CustomEvent('send-analytics', {
-        bubbles: true,
-        composed: true,
-        detail: {
-          type: 'exception',
-          description: cause.message || 'Theme data loading error',
-          fatal: false
-        }
-      }));
-      console.error(cause);
+      this._dispatch('send-analytics', {
+        type: 'exception',
+        description: cause.message || message,
+        fatal: false
+      });
+      console.warn(cause);
     }
 
     _selectionChanged(e) {
@@ -337,25 +398,13 @@ Custom property | Description | Default
       this._dispatchActivateEvent(info._id);
     }
 
-    _dispatchActivateEvent(id) {
-      const e = new CustomEvent('theme-activate', {
-        bubbles: true,
-        composed: true,
-        cancelable: true,
-        detail: {
-          theme: id
-        }
-      });
-      this.dispatchEvent(e);
-      return e;
-    }
-
     _install() {
       const name = this._themeInstall;
       if (!name) {
         this.$.noName.opened = true;
         return Promise.reject(new Error('Name not set'));
       }
+      this._dispatchGaEvent('Installing theme');
       const e = this._dispatchInstallEvent(name);
       if (!e.defaultPrevented) {
         this.$.noModel.opened = true;
@@ -378,30 +427,17 @@ Custom property | Description | Default
       });
     }
 
-    _dispatchInstallEvent(name) {
-      const e = new CustomEvent('theme-install', {
-        bubbles: true,
-        composed: true,
-        cancelable: true,
-        detail: {
-          name
-        }
-      });
-      this.dispatchEvent(e);
-      return e;
-    }
-
     _computeIsDefault(record, activeTheme) {
       const themes = record && record.base;
       if (!themes || !activeTheme || !themes.length) {
-        return;
+        return false;
       }
       const item = themes.find((item) => item._id === activeTheme);
       if (!item) {
-        return;
+        return false;
       }
       if (typeof item.isDefault === 'undefined') {
-        return;
+        return false;
       }
       return item.isDefault;
     }
@@ -411,6 +447,7 @@ Custom property | Description | Default
         this.$.defaultDelete.opened = true;
         return Promise.reject(new Error('Cannot delete default theme'));
       }
+      this._dispatchGaEvent('Uninstalling theme');
       const e = this._dispatchUninstallEvent(this.activeTheme);
       if (!e.defaultPrevented) {
         this.$.noModel.opened = true;
@@ -426,19 +463,6 @@ Custom property | Description | Default
         this._installPending = false;
         return this._handlePromiseError(cause);
       });
-    }
-
-    _dispatchUninstallEvent(name) {
-      const e = new CustomEvent('theme-uninstall', {
-        bubbles: true,
-        composed: true,
-        cancelable: true,
-        detail: {
-          name
-        }
-      });
-      this.dispatchEvent(e);
-      return e;
     }
 
     /**

@@ -7,23 +7,418 @@
   <script src="../../webcomponentsjs/webcomponents-loader.js"></script>
   <script src="../../web-component-tester/browser.js"></script>
   <link rel="import" href="../themes-panel.html">
+  <script src="../../chance/chance.js"></script>
+  <script src="data-model.js"></script>
 </head>
 <body>
-  <test-fixture id="Basic">
+  <test-fixture id="NoAuto">
     <template>
       <themes-panel></themes-panel>
     </template>
   </test-fixture>
 
   <script>
-  suite('themes-panel', () => {
+  /* global DataModel */
+  suite('_dispatch()', () => {
+    const type = 'ev-type';
+    const eventDetail = 'ev-detail';
     let element;
-    setup(() => {
-      element = fixture('Basic');
+    setup(function() {
+      element = fixture('NoAuto');
     });
 
-    test('Initializes the element', () => {
-      assert.ok(element);
+    test('Dispatches an event', () => {
+      const spy = sinon.spy();
+      element.addEventListener(type, spy);
+      element._dispatch(type, eventDetail);
+      assert.isTrue(spy.called);
+    });
+
+    test('Returns the event', () => {
+      const result = element._dispatch(type, eventDetail);
+      assert.typeOf(result, 'customevent');
+      assert.equal(result.type, type);
+    });
+
+    test('Event is cancelable', () => {
+      const e = element._dispatch(type, eventDetail);
+      assert.isTrue(e.cancelable);
+    });
+
+    test('Event bubbles', () => {
+      const e = element._dispatch(type, eventDetail);
+      assert.isTrue(e.bubbles);
+    });
+
+    test('Event is composed', () => {
+      const e = element._dispatch(type, eventDetail);
+      if (e.composed !== undefined) { // Edge
+        assert.isTrue(e.composed);
+      }
+    });
+
+    test('Event has detail', () => {
+      const e = element._dispatch(type, eventDetail);
+      assert.equal(e.detail, eventDetail);
+    });
+  });
+
+  suite('_dispatchListEvent()', () => {
+    let element;
+    setup(function() {
+      element = fixture('NoAuto');
+    });
+
+    test('Calls _dispatch() with type', () => {
+      const spy = sinon.spy(element, '_dispatch');
+      element._dispatchListEvent();
+      assert.isTrue(spy.called);
+      assert.equal(spy.args[0][0], 'themes-list');
+    });
+
+    test('Detail is set', () => {
+      const spy = sinon.spy(element, '_dispatch');
+      element._dispatchListEvent();
+      assert.isTrue(spy.called);
+      assert.deepEqual(spy.args[0][1], {});
+    });
+  });
+
+  suite('_dispatchActiveInfoEvent()', () => {
+    let element;
+    setup(function() {
+      element = fixture('NoAuto');
+    });
+
+    test('Calls _dispatch() with type', () => {
+      const spy = sinon.spy(element, '_dispatch');
+      element._dispatchActiveInfoEvent();
+      assert.isTrue(spy.called);
+      assert.equal(spy.args[0][0], 'theme-active-info');
+    });
+
+    test('Detail is set', () => {
+      const spy = sinon.spy(element, '_dispatch');
+      element._dispatchActiveInfoEvent();
+      assert.isTrue(spy.called);
+      assert.deepEqual(spy.args[0][1], {});
+    });
+  });
+
+  suite('_dispatchActivateEvent()', () => {
+    const theme = 'test-name';
+    let element;
+    setup(function() {
+      element = fixture('NoAuto');
+    });
+
+    test('Calls _dispatch() with type', () => {
+      const spy = sinon.spy(element, '_dispatch');
+      element._dispatchActivateEvent(theme);
+      assert.isTrue(spy.called);
+      assert.equal(spy.args[0][0], 'theme-activate');
+    });
+
+    test('Detail is set', () => {
+      const spy = sinon.spy(element, '_dispatch');
+      element._dispatchActivateEvent(theme);
+      assert.isTrue(spy.called);
+      assert.deepEqual(spy.args[0][1], {
+        theme
+      });
+    });
+  });
+
+  suite('_dispatchInstallEvent()', () => {
+    const name = 'test-name';
+    let element;
+    setup(function() {
+      element = fixture('NoAuto');
+    });
+
+    test('Calls _dispatch() with type', () => {
+      const spy = sinon.spy(element, '_dispatch');
+      element._dispatchInstallEvent(name);
+      assert.isTrue(spy.called);
+      assert.equal(spy.args[0][0], 'theme-install');
+    });
+
+    test('Detail is set', () => {
+      const spy = sinon.spy(element, '_dispatch');
+      element._dispatchInstallEvent(name);
+      assert.isTrue(spy.called);
+      assert.deepEqual(spy.args[0][1], {
+        name
+      });
+    });
+  });
+
+  suite('_dispatchUninstallEvent()', () => {
+    const name = 'test-name';
+    let element;
+    setup(function() {
+      element = fixture('NoAuto');
+    });
+
+    test('Calls _dispatch() with type', () => {
+      const spy = sinon.spy(element, '_dispatch');
+      element._dispatchUninstallEvent(name);
+      assert.isTrue(spy.called);
+      assert.equal(spy.args[0][0], 'theme-uninstall');
+    });
+
+    test('Detail is set', () => {
+      const spy = sinon.spy(element, '_dispatch');
+      element._dispatchUninstallEvent(name);
+      assert.isTrue(spy.called);
+      assert.deepEqual(spy.args[0][1], {
+        name
+      });
+    });
+  });
+
+  suite('_dispatchGaEvent()', () => {
+    const action = 'test-action';
+    let element;
+    setup(function() {
+      element = fixture('NoAuto');
+    });
+
+    test('Calls _dispatch() with type', () => {
+      const spy = sinon.spy(element, '_dispatch');
+      element._dispatchGaEvent(action);
+      assert.isTrue(spy.called);
+      assert.equal(spy.args[0][0], 'send-analytics');
+    });
+
+    test('Detail is set', () => {
+      const spy = sinon.spy(element, '_dispatch');
+      element._dispatchGaEvent(action);
+      assert.isTrue(spy.called);
+      assert.deepEqual(spy.args[0][1], {
+        type: 'event',
+        category: 'Themes panel',
+        action
+      });
+    });
+  });
+
+  suite('_processListResponse()', () => {
+    let element;
+    setup(function() {
+      element = fixture('NoAuto');
+    });
+
+    test('Sets empty array when no response', () => {
+      element._processListResponse();
+      assert.typeOf(element.themes, 'array');
+      assert.deepEqual(element.themes, []);
+    });
+
+    test('Sets response data', () => {
+      element._processListResponse(DataModel.generateThemes());
+      assert.typeOf(element.themes, 'array');
+      assert.lengthOf(element.themes, 5);
+    });
+
+    test('Array items are a copy', () => {
+      const items = DataModel.generateThemes();
+      element._processListResponse(items);
+      items[0].name = 'test';
+      assert.notEqual(element.themes[0].name, 'test');
+    });
+
+    test('Sets title from name if not exists', () => {
+      const items = DataModel.generateThemes();
+      items[0].title = undefined;
+      element._processListResponse(items);
+      assert.notEqual(element.themes[0].title, undefined);
+    });
+  });
+
+  suite('refresh()', () => {
+    let element;
+    setup(function() {
+      DataModel.listen();
+      element = fixture('NoAuto');
+    });
+
+    teardown(() => {
+      DataModel.unlisten();
+    });
+
+    test('Calls _dispatchListEvent()', () => {
+      const spy = sinon.spy(element, '_dispatchListEvent');
+      element.refresh();
+      assert.isTrue(spy.called);
+    });
+
+    test('Returns a promise', () => {
+      const result = element.refresh();
+      assert.typeOf(result.then, 'function');
+      return result;
+    });
+
+    test('Calls _processListResponse() with result', () => {
+      const spy = sinon.spy(element, '_processListResponse');
+      return element.refresh()
+      .then(() => {
+        assert.isTrue(spy.called);
+        assert.typeOf(spy.args[0][0], 'array');
+      });
+    });
+
+    test('Calls getActiveTheme()', () => {
+      const spy = sinon.spy(element, 'getActiveTheme');
+      return element.refresh()
+      .then(() => {
+        assert.isTrue(spy.called);
+      });
+    });
+
+    test('Rejects when event is not handled', () => {
+      DataModel.unlisten();
+      return element.refresh()
+      .then(() => {
+        throw new Error('Should not resolve');
+      })
+      .catch((cause) => {
+        assert.notEqual(cause.message, 'Should not resolve');
+      });
+    });
+
+    test('Calls _handlePromiseError() when model error', () => {
+      DataModel.unlisten();
+      window.addEventListener('themes-list', function f(e) {
+        window.removeEventListener('themes-list', f);
+        e.preventDefault();
+        e.detail.result = Promise.reject(new Error('test'));
+      });
+      const spy = sinon.spy(element, '_handlePromiseError');
+      return element.refresh()
+      .then(() => {
+        assert.isTrue(spy.called);
+      });
+    });
+  });
+
+  suite('_handlePromiseError()', () => {
+    let element;
+    setup(function() {
+      element = fixture('NoAuto');
+    });
+
+    test('Openms the toast with message', () => {
+      element._handlePromiseError({
+        message: 'test'
+      });
+      assert.isTrue(element.$.errorToast.opened);
+      assert.equal(element.$.errorToast.text, 'test');
+    });
+
+    test('Sets default message', () => {
+      element._handlePromiseError({});
+      assert.equal(element.$.errorToast.text, 'Theme data loading error.');
+    });
+  });
+
+  suite('_computeIsDefault()', () => {
+    let record;
+    let element;
+    setup(function() {
+      element = fixture('NoAuto');
+      record = {
+        base: DataModel.generateThemes()
+      };
+    });
+
+    test('Returns true if selected is default theme', () => {
+      const result = element._computeIsDefault(record, 'advanced-rest-client/arc-electron-default-theme');
+      assert.isTrue(result);
+    });
+
+    test('Returns false for other themes', () => {
+      const result = element._computeIsDefault(record, record.base[1]._id);
+      assert.isFalse(result);
+    });
+
+    test('Returns false if theme has not isDefault', () => {
+      record.base[1].isDefault = undefined;
+      const result = element._computeIsDefault(record, record.base[1]._id);
+      assert.isFalse(result);
+    });
+
+    test('Returns false if theme do not exists', () => {
+      const result = element._computeIsDefault(record, 'unknown-theme');
+      assert.isFalse(result);
+    });
+
+    test('Returns false if no activeTheme', () => {
+      const result = element._computeIsDefault(record);
+      assert.isFalse(result);
+    });
+
+    test('Returns false if no record', () => {
+      const result = element._computeIsDefault(undefined, 'test');
+      assert.isFalse(result);
+    });
+  });
+
+  suite('getActiveTheme()', () => {
+    let element;
+    setup(function() {
+      DataModel.listen();
+      element = fixture('NoAuto');
+    });
+
+    teardown(() => {
+      DataModel.unlisten();
+    });
+
+    test('Calls _dispatchActiveInfoEvent()', () => {
+      const spy = sinon.spy(element, '_dispatchActiveInfoEvent');
+      element.getActiveTheme();
+      assert.isTrue(spy.called);
+    });
+
+    test('Sets active theme info', () => {
+      return element.getActiveTheme()
+      .then(() => {
+        assert.equal(element.activeTheme, DataModel.defaultTheme._id);
+      });
+    });
+
+    test('Won\'t call _dispatchActivateEvent()', () => {
+      const spy = sinon.spy(element, '_dispatchActivateEvent');
+      return element.getActiveTheme()
+      .then(() => {
+        assert.isFalse(spy.called);
+      });
+    });
+
+    test('Rejects when event is not handled', () => {
+      DataModel.unlisten();
+      return element.getActiveTheme()
+      .then(() => {
+        throw new Error('Should not resolve');
+      })
+      .catch((cause) => {
+        assert.notEqual(cause.message, 'Should not resolve');
+      });
+    });
+
+    test('Calls _handlePromiseError() when model error', () => {
+      DataModel.unlisten();
+      window.addEventListener('theme-active-info', function f(e) {
+        window.removeEventListener('theme-active-info', f);
+        e.preventDefault();
+        e.detail.result = Promise.reject(new Error('test'));
+      });
+      const spy = sinon.spy(element, '_handlePromiseError');
+      return element.getActiveTheme()
+      .then(() => {
+        assert.isTrue(spy.called);
+      });
     });
   });
   </script>
