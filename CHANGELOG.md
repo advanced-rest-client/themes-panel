@@ -52,3 +52,22 @@
 
 
 
+# [2.0.0](https://github.com/advanced-rest-client/themes-panel/compare/0.1.4...2.0.0) (2019-02-02)
+
+
+### Breaking
+
+* Releasing component with Polymer 2 support ([9d263322de32dc6d09d0a569ca51af2277dff283](https://github.com/advanced-rest-client/themes-panel/commit/9d263322de32dc6d09d0a569ca51af2277dff283))
+
+### New
+
+* Adding Polymer docs ([a71691b56aa3a324e5e823ebf10bdead949892c5](https://github.com/advanced-rest-client/themes-panel/commit/a71691b56aa3a324e5e823ebf10bdead949892c5))
+* Adding test coverage ([78195b29997ad5b7528f926b4c0dd8af79b5427a](https://github.com/advanced-rest-client/themes-panel/commit/78195b29997ad5b7528f926b4c0dd8af79b5427a))
+
+### Update
+
+* Adding rest of the tests ([aef91066bd6ddd53d61899c9f523eea309ca2efc](https://github.com/advanced-rest-client/themes-panel/commit/aef91066bd6ddd53d61899c9f523eea309ca2efc))
+* Updating demo page ([a29b64c64671946827f84fe3b9727230b52c9dbf](https://github.com/advanced-rest-client/themes-panel/commit/a29b64c64671946827f84fe3b9727230b52c9dbf))
+
+
+
