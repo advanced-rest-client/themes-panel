@@ -26,14 +26,7 @@ the License.
 <link rel="import" href="../paper-toast/paper-toast.html">
 <link rel="import" href="../arc-icons/arc-icons.html">
 <link rel="import" href="../paper-icon-button/paper-icon-button.html">
-<!--
 
-
-
-@group UI Elements
-@element themes-panel
-@demo demo/index.html
--->
 <dom-module id="themes-panel">
   <template>
     <style>
@@ -207,6 +200,13 @@ the License.
           type: Boolean,
           value: true,
           computed: '_computeIsDefault(themes.*, activeTheme)'
+        },
+        /**
+         * Name of the default theme to use when installed theme is removed.
+         */
+        defaultThemeName: {
+          type: String,
+          value: 'advanced-rest-client/arc-electron-default-theme'
         }
       };
     }
@@ -390,12 +390,12 @@ the License.
         return;
       }
       const id = e.detail.value;
-      const info = this.themes.find((i) => i._id === id);
-      if (!info) {
+      const index = this.themes.findIndex((i) => i._id === id);
+      if (index === -1) {
         this.$.noSelection.opened = true;
         return;
       }
-      this._dispatchActivateEvent(info._id);
+      this._dispatchActivateEvent(id);
     }
 
     _install() {
@@ -457,7 +457,7 @@ the License.
       return e.detail.result
       .then(() => {
         this._installPending = false;
-        return this._dispatchActivateEvent('advanced-rest-client/arc-electron-default-theme');
+        return this._dispatchActivateEvent(this.defaultThemeName);
       })
       .catch((cause) => {
         this._installPending = false;

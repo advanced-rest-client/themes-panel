@@ -421,6 +421,316 @@
       });
     });
   });
+
+  suite('_activatedHandler()', () => {
+    let element;
+    setup(function() {
+      element = fixture('NoAuto');
+      element.themes = DataModel.generateThemes();
+    });
+
+    test('Sets activeTheme from theme-activated event', () => {
+      document.body.dispatchEvent(new CustomEvent('theme-activated', {
+        bubbles: true,
+        detail: {
+          id: element.themes[1]._id
+        }
+      }));
+      assert.equal(element.activeTheme, element.themes[1]._id);
+    });
+
+    test('Ignores event when id is not set', () => {
+      document.body.dispatchEvent(new CustomEvent('theme-activated', {
+        bubbles: true,
+        detail: {}
+      }));
+      assert.isUndefined(element.activeTheme);
+    });
+
+    test('Skips setter when already active', () => {
+      // for coverage
+      element.activeTheme = element.themes[1]._id;
+      document.body.dispatchEvent(new CustomEvent('theme-activated', {
+        bubbles: true,
+        detail: {
+          id: element.themes[1]._id
+        }
+      }));
+      assert.equal(element.activeTheme, element.themes[1]._id);
+    });
+  });
+
+  suite('_selectionChanged()', () => {
+    let element;
+    setup(function() {
+      element = fixture('NoAuto');
+      element.themes = DataModel.generateThemes();
+    });
+
+    test('Does nothing when __cancelChange is set', () => {
+      element.__cancelChange = true;
+      const spy = sinon.spy(element, '_dispatchActivateEvent');
+      element._selectionChanged({
+        detail: {
+          value: element.themes[1]._id
+        }
+      });
+      assert.isFalse(spy.called);
+    });
+
+    test('Opens noSelection toast when theme not found', () => {
+      element._selectionChanged({
+        detail: {
+          value: 'unknown'
+        }
+      });
+      assert.isTrue(element.$.noSelection.opened);
+    });
+
+    test('Calls _dispatchActivateEvent() with an argument', () => {
+      const spy = sinon.spy(element, '_dispatchActivateEvent');
+      element._selectionChanged({
+        detail: {
+          value: element.themes[1]._id
+        }
+      });
+      assert.isTrue(spy.called);
+      assert.equal(spy.args[0][0], element.themes[1]._id);
+    });
+  });
+
+  suite('_install()', () => {
+    let element;
+    setup(function(done) {
+      element = fixture('NoAuto');
+      element._themeInstall = 'test-theme';
+      flush(() => done());
+    });
+
+    function handler(e) {
+      e.preventDefault();
+      e.detail.result = Promise.resolve({
+        _id: 'test-id',
+        name: 'test-name'
+      });
+    }
+
+    function errorHandler(e) {
+      e.preventDefault();
+      e.detail.result = Promise.reject(new Error('test'));
+    }
+
+    teardown(() => {
+      window.removeEventListener('theme-install', handler);
+      window.removeEventListener('theme-install', errorHandler);
+    });
+
+    test('Rejects when no name', () => {
+      element._themeInstall = '';
+      return element._install()
+      .then(() => {
+        throw new Error('Should not resolve.');
+      })
+      .catch((cause) => {
+        assert.typeOf(cause.message, 'string');
+        assert.equal(cause.message, 'Name not set');
+      });
+    });
+
+    test('Opens noName toast when no name', () => {
+      element._themeInstall = '';
+      element._install().catch(() => {});
+      assert.isTrue(element.$.noName.opened);
+    });
+
+    test('Dispatches theme-install event', () => {
+      window.addEventListener('theme-install', handler);
+      const spy = sinon.spy();
+      element.addEventListener('theme-install', spy);
+      return element._install()
+      .then(() => {
+        assert.isTrue(spy.called, 'Event called');
+        assert.equal(spy.args[0][0].detail.name, element._themeInstall);
+      });
+    });
+
+    test('Rejects when theme-install event is not handled', () => {
+      return element._install()
+      .then(() => {
+        throw new Error('Should not resolve.');
+      })
+      .catch((cause) => {
+        assert.typeOf(cause.message, 'string');
+        assert.equal(cause.message, 'Model not found');
+      });
+    });
+
+    test('Opens noModel toast when event is not handled', () => {
+      element._install().catch(() => {});
+      assert.isTrue(element.$.noModel.opened);
+    });
+
+    test('Sets _installPending property', () => {
+      window.addEventListener('theme-install', handler);
+      element._install().catch(() => {});
+      assert.isTrue(element._installPending);
+    });
+
+    test('Resets _installPending property', () => {
+      window.addEventListener('theme-install', handler);
+      return element._install()
+      .then(() => {
+        assert.isFalse(element._installPending);
+      });
+    });
+
+    test('Creates themes array', () => {
+      window.addEventListener('theme-install', handler);
+      return element._install()
+      .then(() => {
+        assert.lengthOf(element.themes, 1);
+      });
+    });
+
+    test('Adds new theme to the list', () => {
+      element.themes = DataModel.generateThemes();
+      window.addEventListener('theme-install', handler);
+      return element._install()
+      .then(() => {
+        assert.lengthOf(element.themes, 6);
+      });
+    });
+
+    test('Resets _installPending property when process error', () => {
+      window.addEventListener('theme-install', errorHandler);
+      return element._install()
+      .then(() => {
+        assert.isFalse(element._installPending);
+      });
+    });
+
+    test('Calles _handlePromiseError() when process error', () => {
+      window.addEventListener('theme-install', errorHandler);
+      const spy = sinon.spy(element, '_handlePromiseError');
+      return element._install()
+      .then(() => {
+        assert.isTrue(spy.called);
+      });
+    });
+  });
+
+  suite('_uninstall()', () => {
+    let element;
+    setup(function(done) {
+      element = fixture('NoAuto');
+      element.themes = DataModel.generateThemes();
+      // Not default theme
+      element.activeTheme = element.themes[1]._id;
+      flush(() => done());
+    });
+
+    function handler(e) {
+      e.preventDefault();
+      e.detail.result = Promise.resolve();
+    }
+
+    function errorHandler(e) {
+      e.preventDefault();
+      e.detail.result = Promise.reject(new Error('test'));
+    }
+
+    teardown(() => {
+      window.removeEventListener('theme-uninstall', handler);
+      window.removeEventListener('theme-uninstall', errorHandler);
+    });
+
+    test('Rejects when isDefaultTheme', () => {
+      element.activeTheme = element.themes[0]._id;
+      assert.isTrue(element.isDefaultTheme);
+      return element._uninstall()
+      .then(() => {
+        throw new Error('Should not resolve.');
+      })
+      .catch((cause) => {
+        assert.typeOf(cause.message, 'string');
+        assert.equal(cause.message, 'Cannot delete default theme');
+      });
+    });
+
+    test('Opens defaultDelete toast when no name', () => {
+      element.activeTheme = element.themes[0]._id;
+      element._uninstall().catch(() => {});
+      assert.isTrue(element.$.defaultDelete.opened);
+    });
+
+    test('Dispatches theme-uninstall event', () => {
+      window.addEventListener('theme-uninstall', handler);
+      const spy = sinon.spy();
+      element.addEventListener('theme-uninstall', spy);
+      return element._uninstall()
+      .then(() => {
+        assert.isTrue(spy.called, 'Event called');
+        assert.equal(spy.args[0][0].detail.name, element.activeTheme);
+      });
+    });
+
+    test('Rejects when theme-uninstall event is not handled', () => {
+      return element._uninstall()
+      .then(() => {
+        throw new Error('Should not resolve.');
+      })
+      .catch((cause) => {
+        assert.typeOf(cause.message, 'string');
+        assert.equal(cause.message, 'Model not found');
+      });
+    });
+
+    test('Opens noModel toast when event is not handled', () => {
+      element._uninstall().catch(() => {});
+      assert.isTrue(element.$.noModel.opened);
+    });
+
+    test('Sets _installPending property', () => {
+      window.addEventListener('theme-uninstall', handler);
+      element._uninstall().catch(() => {});
+      assert.isTrue(element._installPending);
+    });
+
+    test('Resets _installPending property', () => {
+      window.addEventListener('theme-uninstall', handler);
+      return element._uninstall()
+      .then(() => {
+        assert.isFalse(element._installPending);
+      });
+    });
+
+    test('Resets _installPending property when process error', () => {
+      window.addEventListener('theme-uninstall', errorHandler);
+      return element._uninstall()
+      .then(() => {
+        assert.isFalse(element._installPending);
+      });
+    });
+
+    test('Calles _handlePromiseError() when process error', () => {
+      window.addEventListener('theme-uninstall', errorHandler);
+      const spy = sinon.spy(element, '_handlePromiseError');
+      return element._uninstall()
+      .then(() => {
+        assert.isTrue(spy.called);
+      });
+    });
+
+    test('Calls _dispatchActivateEvent() with argument', () => {
+      window.addEventListener('theme-uninstall', handler);
+      const spy = sinon.spy(element, '_dispatchActivateEvent');
+      return element._uninstall()
+      .then(() => {
+        assert.isTrue(spy.called, 'Event called');
+        assert.equal(spy.args[0][0], element.defaultThemeName);
+      });
+    });
+  });
   </script>
 </body>
 </html>
