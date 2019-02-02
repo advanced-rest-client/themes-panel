@@ -53,33 +53,35 @@
   (function(scope) {
     const arcPrefix = '@advanced-rest-client/arc-electron-';
     const defaultThemes = [{
-        '_id': 'advanced-rest-client/arc-electron-default-theme',
-        'title': 'Default theme',
-        'name': arcPrefix + 'default-theme',
-        'version': '2.0.0-preview',
-        'location': arcPrefix + 'default-theme',
-        'mainFile': arcPrefix + 'default-theme/arc-electron-default-theme.html',
-        'description': 'Advanced REST Client default theme'
-      },
-      {
-        '_id': 'advanced-rest-client/arc-electron-anypoint-theme',
-        'title': 'Anypoint theme',
-        'name': arcPrefix + 'anypoint-theme',
-        'version': '2.0.0-preview',
-        'location': arcPrefix + 'anypoint-theme',
-        'mainFile': arcPrefix + 'anypoint-theme/arc-electron-anypoint-theme.html',
-        'description': 'Advanced REST Client anypoint theme'
-      },
-      {
-        '_id': 'advanced-rest-client/arc-electron-dark-theme',
-        'title': 'Dark theme',
-        'name': arcPrefix + 'dark-theme',
-        'version': '2.0.0-preview',
-        'location': arcPrefix + 'dark-theme',
-        'mainFile': arcPrefix + 'dark-theme/arc-electron-dark-theme.html',
-        'description': 'Advanced REST Client dark theme'
-      }
-    ];
+      '_id': 'advanced-rest-client/arc-electron-default-theme',
+      'title': 'Default theme',
+      'name': arcPrefix + 'default-theme',
+      'version': '2.0.0-preview',
+      'location': arcPrefix + 'default-theme',
+      'mainFile': arcPrefix + 'default-theme/arc-electron-default-theme.html',
+      'description': 'Advanced REST Client default theme',
+      'isDefault': true
+    },
+    {
+      '_id': 'advanced-rest-client/arc-electron-anypoint-theme',
+      'title': 'Anypoint theme',
+      'name': arcPrefix + 'anypoint-theme',
+      'version': '2.0.0-preview',
+      'location': arcPrefix + 'anypoint-theme',
+      'mainFile': arcPrefix + 'anypoint-theme/arc-electron-anypoint-theme.html',
+      'description': 'Advanced REST Client anypoint theme',
+      'isDefault': true
+    },
+    {
+      '_id': 'advanced-rest-client/arc-electron-dark-theme',
+      'title': 'Dark theme',
+      'name': arcPrefix + 'dark-theme',
+      'version': '2.0.0-preview',
+      'location': arcPrefix + 'dark-theme',
+      'mainFile': arcPrefix + 'dark-theme/arc-electron-dark-theme.html',
+      'description': 'Advanced REST Client dark theme',
+      'isDefault': true
+    }];
 
     function genThemeInfo() {
       const name = chance.word();
