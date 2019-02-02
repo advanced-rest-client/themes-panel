@@ -1,42 +1,55 @@
 /* global chance */
-var DataModel = {};
+const DataModel = {};
 DataModel.defaultTheme = {
-  name: 'Default theme',
   description: 'Advanced REST Client default theme',
-  main: 'arc-theme.html',
-  path: 'detault-theme/arc-theme.html',
-  author: 'The Advanced REST client authors <arc@mulesoft.com>',
-  _id: '1234abc'
+  isDefault: true,
+  location: '@advanced-rest-client/arc-electron-default-theme',
+  mainFile: '@advanced-rest-client/arc-electron-default-theme/arc-electron-default-theme.html',
+  name: '@advanced-rest-client/arc-electron-default-theme',
+  _id: 'advanced-rest-client/arc-electron-default-theme',
+  title: 'Default theme',
+  version: '2.0.0'
 };
+
 DataModel.genThemeInfo = function() {
-  var name = chance.word();
+  const name = chance.word();
+  const id = chance.word();
   return {
-    name: name + ' theme',
+    name: id,
+    _id: id,
     description: chance.sentence(),
-    main: 'arc-theme.html',
-    path: name + '/arc-theme.html',
-    author: chance.name(),
-    _id: chance.word()
+    title: name,
+    location: id,
+    mainFile: id + '/theme.html',
+    version: '1.0.0',
+    isDefault: false
   };
 };
-DataModel.generateThemes = function(e) {
-  e.preventDefault();
-  var themes = [DataModel.defaultTheme];
-  for (var i = 0; i < 5; i++) {
+
+DataModel.generateThemes = function() {
+  const themes = [DataModel.defaultTheme];
+  for (let i = 0; i < 4; i++) {
     themes.push(DataModel.genThemeInfo());
   }
-  e.detail.result = Promise.resolve(themes);
+  return themes;
 };
+
+DataModel.generateThemesHandler = function(e) {
+  e.preventDefault();
+  e.detail.result = Promise.resolve(DataModel.generateThemes());
+};
+
 DataModel.activeThemeInfo = function(e) {
   e.preventDefault();
-  e.detail.result = Promise.resolve(DataModel.defaultTheme._id);
+  e.detail.result = Promise.resolve(DataModel.defaultTheme);
 };
+
 DataModel.listen = function() {
-  window.addEventListener('themes-list', DataModel.generateThemes);
+  window.addEventListener('themes-list', DataModel.generateThemesHandler);
   window.addEventListener('theme-active-info', DataModel.activeThemeInfo);
 };
 
 DataModel.unlisten = function() {
-  window.removeEventListener('themes-list', DataModel.generateThemes);
+  window.removeEventListener('themes-list', DataModel.generateThemesHandler);
   window.removeEventListener('theme-active-info', DataModel.activeThemeInfo);
 };
