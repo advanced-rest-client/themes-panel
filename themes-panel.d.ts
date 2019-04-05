@@ -5,28 +5,12 @@
  *   https://github.com/Polymer/tools/tree/master/packages/gen-typescript-declarations
  *
  * To modify these typings, edit the source file(s):
- *   themes-panel.html
+ *   themes-panel.js
  */
 
 
 // tslint:disable:variable-name Describing an API that's defined elsewhere.
 // tslint:disable:no-any describes the API as best we are able today
-
-/// <reference path="../polymer/types/polymer-element.d.ts" />
-/// <reference path="../polymer/types/lib/elements/dom-if.d.ts" />
-/// <reference path="../polymer/types/lib/elements/dom-repeat.d.ts" />
-/// <reference path="../polymer/types/lib/utils/render-status.d.ts" />
-/// <reference path="../paper-dropdown-menu/paper-dropdown-menu-light.d.ts" />
-/// <reference path="../paper-listbox/paper-listbox.d.ts" />
-/// <reference path="../paper-item/paper-item.d.ts" />
-/// <reference path="../paper-item/paper-item-body.d.ts" />
-/// <reference path="../paper-button/paper-button.d.ts" />
-/// <reference path="../paper-input/paper-input.d.ts" />
-/// <reference path="../paper-spinner/paper-spinner.d.ts" />
-/// <reference path="../iron-flex-layout/iron-flex-layout.d.ts" />
-/// <reference path="../paper-toast/paper-toast.d.ts" />
-/// <reference path="../arc-icons/arc-icons.d.ts" />
-/// <reference path="../paper-icon-button/paper-icon-button.d.ts" />
 
 declare namespace UiElements {
 
@@ -63,15 +47,10 @@ declare namespace UiElements {
    *
    * Custom property | Description | Default
    * ----------------|-------------|----------
-   * `--themes-panel` | Mixin applied to the element | `{}`
-   * `--arc-font-headline` | Mixin applied to the header | `{}`
-   * `--arc-font-subhead` | Mixin applied to the subheader | `{}`
-   * `--error-toast` | Mixin applied to the error toast | `{}`
-   * `--empty-info` | Mixin applied to the label rendered when no data is available. | `{}`
    * `--warning-primary-color` | Main color of the warning messages | `#FF7043`
    * `--warning-contrast-color` | Contrast color for the warning color | `#fff`
    */
-  class ThemesPanel extends Polymer.Element {
+  class ThemesPanel extends PolymerElement {
 
     /**
      * List of themes.
@@ -107,6 +86,11 @@ declare namespace UiElements {
      * Computed value, true if selected theme is one of default themes.
      */
     readonly isDefaultTheme: boolean|null|undefined;
+
+    /**
+     * Name of the default theme to use when installed theme is removed.
+     */
+    defaultThemeName: string|null|undefined;
     connectedCallback(): void;
     disconnectedCallback(): void;
     _activatedHandler(e: any): void;
@@ -185,6 +169,11 @@ declare namespace UiElements {
   }
 }
 
-interface HTMLElementTagNameMap {
-  "themes-panel": UiElements.ThemesPanel;
+declare global {
+
+  interface HTMLElementTagNameMap {
+    "themes-panel": UiElements.ThemesPanel;
+  }
 }
+
+export {};
