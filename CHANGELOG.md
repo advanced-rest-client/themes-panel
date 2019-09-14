@@ -71,3 +71,7 @@
 
 
 
+# [3.0.0](https://github.com/advanced-rest-client/themes-panel/compare/0.1.4...3.0.0) (2019-09-14)
+
+
+
