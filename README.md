@@ -4,20 +4,12 @@
 
 [![Published on webcomponents.org](https://img.shields.io/badge/webcomponents.org-published-blue.svg)](https://www.webcomponents.org/element/advanced-rest-client/themes-panel)
 
-
 # themes-panel
 
-A panel to display themes installed in the application
+A panel to render themes installed in Advanced REST Client.
 
-## Example:
-
-```html
-<themes-panel></themes-panel>
-```
-
-## API components
-
-This components is a part of [API components ecosystem](https://elements.advancedrestclient.com/)
+This panel does not have own model in ARC datastore as themes are handled differently in Electron and Chrome App.
+Each version of the application handles events but it's own.
 
 ## Usage
 
@@ -26,29 +18,14 @@ This components is a part of [API components ecosystem](https://elements.advance
 npm install --save @advanced-rest-client/themes-panel
 ```
 
-### In an html file
-
-```html
-<html>
-  <head>
-    <script type="module">
-      import './node_modules/@advanced-rest-client/themes-panel/themes-panel.js';
-    </script>
-  </head>
-  <body>
-    <themes-panel></themes-panel>
-  </body>
-</html>
-```
-
-### In a Polymer 3 element
+### In a LitElement
 
 ```js
-import {PolymerElement, html} from './node_modules/@polymer/polymer/polymer-element.js';
-import './node_modules/@advanced-rest-client/themes-panel/themes-panel.js';
+import { LitElement, html } from 'lit-element';
+import '@advanced-rest-client/themes-panel/themes-panel.js';
 
-class SampleElement extends PolymerElement {
-  static get template() {
+class SampleElement extends LitElement {
+  render() {
     return html`
     <themes-panel></themes-panel>
     `;
@@ -57,23 +34,26 @@ class SampleElement extends PolymerElement {
 customElements.define('sample-element', SampleElement);
 ```
 
-### Installation
+## Development
 
 ```sh
 git clone https://github.com/advanced-rest-client/themes-panel
-cd api-url-editor
+cd themes-panel
 npm install
-npm install -g polymer-cli
 ```
 
 ### Running the demo locally
 
 ```sh
-polymer serve --npm
-open http://127.0.0.1:<port>/demo/
+npm start
 ```
 
 ### Running the tests
+
 ```sh
-polymer test --npm
+npm test
 ```
+
+## API components
+
+This components is a part of [API components ecosystem](https://elements.advancedrestclient.com/)

@@ -1,4 +1,4 @@
-import '../../../chance/chance.js';
+import 'chance/chance.js';
 /* global chance */
 export const DataModel = {};
 DataModel.defaultTheme = {
