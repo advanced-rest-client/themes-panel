@@ -1,82 +1,72 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
-  <title>themes-panel test</title>
-  <script src="../../webcomponentsjs/webcomponents-loader.js"></script>
-  <script src="../../web-component-tester/browser.js"></script>
-  <link rel="import" href="../themes-panel.html">
-  <script src="../../chance/chance.js"></script>
-  <script src="data-model.js"></script>
-</head>
-<body>
-  <test-fixture id="NoAuto">
-    <template>
-      <themes-panel></themes-panel>
-    </template>
-  </test-fixture>
+import { fixture, assert, html } from '@open-wc/testing';
+// import * as MockInteractions from '@polymer/iron-test-helpers/mock-interactions.js';
+import * as sinon from 'sinon/pkg/sinon-esm.js';
+import { DataModel } from './data-model.js';
+import '../themes-panel.js';
 
-  <script>
-  /* global DataModel */
-  suite('_dispatch()', () => {
+describe('<themes-panel>', function() {
+  async function basicFixture() {
+    return await fixture(html`<themes-panel></themes-panel>`);
+  }
+
+  describe('_dispatch()', () => {
     const type = 'ev-type';
     const eventDetail = 'ev-detail';
     let element;
-    setup(function() {
-      element = fixture('NoAuto');
+    beforeEach(async () => {
+      element = await basicFixture();
     });
 
-    test('Dispatches an event', () => {
+    it('Dispatches an event', () => {
       const spy = sinon.spy();
       element.addEventListener(type, spy);
       element._dispatch(type, eventDetail);
       assert.isTrue(spy.called);
     });
 
-    test('Returns the event', () => {
+    it('Returns the event', () => {
       const result = element._dispatch(type, eventDetail);
       assert.typeOf(result, 'customevent');
       assert.equal(result.type, type);
     });
 
-    test('Event is cancelable', () => {
+    it('Event is cancelable', () => {
       const e = element._dispatch(type, eventDetail);
       assert.isTrue(e.cancelable);
     });
 
-    test('Event bubbles', () => {
+    it('Event bubbles', () => {
       const e = element._dispatch(type, eventDetail);
       assert.isTrue(e.bubbles);
     });
 
-    test('Event is composed', () => {
+    it('Event is composed', () => {
       const e = element._dispatch(type, eventDetail);
       if (e.composed !== undefined) { // Edge
         assert.isTrue(e.composed);
       }
     });
 
-    test('Event has detail', () => {
+    it('Event has detail', () => {
       const e = element._dispatch(type, eventDetail);
       assert.equal(e.detail, eventDetail);
     });
   });
 
-  suite('_dispatchListEvent()', () => {
+  describe('_dispatchListEvent()', () => {
     let element;
-    setup(function() {
-      element = fixture('NoAuto');
+    beforeEach(async () => {
+      element = await basicFixture();
     });
 
-    test('Calls _dispatch() with type', () => {
+    it('Calls _dispatch() with type', () => {
       const spy = sinon.spy(element, '_dispatch');
       element._dispatchListEvent();
       assert.isTrue(spy.called);
       assert.equal(spy.args[0][0], 'themes-list');
     });
 
-    test('Detail is set', () => {
+    it('Detail is set', () => {
       const spy = sinon.spy(element, '_dispatch');
       element._dispatchListEvent();
       assert.isTrue(spy.called);
@@ -84,20 +74,20 @@
     });
   });
 
-  suite('_dispatchActiveInfoEvent()', () => {
+  describe('_dispatchActiveInfoEvent()', () => {
     let element;
-    setup(function() {
-      element = fixture('NoAuto');
+    beforeEach(async () => {
+      element = await basicFixture();
     });
 
-    test('Calls _dispatch() with type', () => {
+    it('Calls _dispatch() with type', () => {
       const spy = sinon.spy(element, '_dispatch');
       element._dispatchActiveInfoEvent();
       assert.isTrue(spy.called);
       assert.equal(spy.args[0][0], 'theme-active-info');
     });
 
-    test('Detail is set', () => {
+    it('Detail is set', () => {
       const spy = sinon.spy(element, '_dispatch');
       element._dispatchActiveInfoEvent();
       assert.isTrue(spy.called);
@@ -105,21 +95,21 @@
     });
   });
 
-  suite('_dispatchActivateEvent()', () => {
+  describe('_dispatchActivateEvent()', () => {
     const theme = 'test-name';
     let element;
-    setup(function() {
-      element = fixture('NoAuto');
+    beforeEach(async () => {
+      element = await basicFixture();
     });
 
-    test('Calls _dispatch() with type', () => {
+    it('Calls _dispatch() with type', () => {
       const spy = sinon.spy(element, '_dispatch');
       element._dispatchActivateEvent(theme);
       assert.isTrue(spy.called);
       assert.equal(spy.args[0][0], 'theme-activate');
     });
 
-    test('Detail is set', () => {
+    it('Detail is set', () => {
       const spy = sinon.spy(element, '_dispatch');
       element._dispatchActivateEvent(theme);
       assert.isTrue(spy.called);
@@ -129,21 +119,21 @@
     });
   });
 
-  suite('_dispatchInstallEvent()', () => {
+  describe('_dispatchInstallEvent()', () => {
     const name = 'test-name';
     let element;
-    setup(function() {
-      element = fixture('NoAuto');
+    beforeEach(async () => {
+      element = await basicFixture();
     });
 
-    test('Calls _dispatch() with type', () => {
+    it('Calls _dispatch() with type', () => {
       const spy = sinon.spy(element, '_dispatch');
       element._dispatchInstallEvent(name);
       assert.isTrue(spy.called);
       assert.equal(spy.args[0][0], 'theme-install');
     });
 
-    test('Detail is set', () => {
+    it('Detail is set', () => {
       const spy = sinon.spy(element, '_dispatch');
       element._dispatchInstallEvent(name);
       assert.isTrue(spy.called);
@@ -153,21 +143,21 @@
     });
   });
 
-  suite('_dispatchUninstallEvent()', () => {
+  describe('_dispatchUninstallEvent()', () => {
     const name = 'test-name';
     let element;
-    setup(function() {
-      element = fixture('NoAuto');
+    beforeEach(async () => {
+      element = await basicFixture();
     });
 
-    test('Calls _dispatch() with type', () => {
+    it('Calls _dispatch() with type', () => {
       const spy = sinon.spy(element, '_dispatch');
       element._dispatchUninstallEvent(name);
       assert.isTrue(spy.called);
       assert.equal(spy.args[0][0], 'theme-uninstall');
     });
 
-    test('Detail is set', () => {
+    it('Detail is set', () => {
       const spy = sinon.spy(element, '_dispatch');
       element._dispatchUninstallEvent(name);
       assert.isTrue(spy.called);
@@ -177,21 +167,21 @@
     });
   });
 
-  suite('_dispatchGaEvent()', () => {
+  describe('_dispatchGaEvent()', () => {
     const action = 'test-action';
     let element;
-    setup(function() {
-      element = fixture('NoAuto');
+    beforeEach(async () => {
+      element = await basicFixture();
     });
 
-    test('Calls _dispatch() with type', () => {
+    it('Calls _dispatch() with type', () => {
       const spy = sinon.spy(element, '_dispatch');
       element._dispatchGaEvent(action);
       assert.isTrue(spy.called);
       assert.equal(spy.args[0][0], 'send-analytics');
     });
 
-    test('Detail is set', () => {
+    it('Detail is set', () => {
       const spy = sinon.spy(element, '_dispatch');
       element._dispatchGaEvent(action);
       assert.isTrue(spy.called);
@@ -203,32 +193,32 @@
     });
   });
 
-  suite('_processListResponse()', () => {
+  describe('_processListResponse()', () => {
     let element;
-    setup(function() {
-      element = fixture('NoAuto');
+    beforeEach(async () => {
+      element = await basicFixture();
     });
 
-    test('Sets empty array when no response', () => {
+    it('Sets empty array when no response', () => {
       element._processListResponse();
       assert.typeOf(element.themes, 'array');
       assert.deepEqual(element.themes, []);
     });
 
-    test('Sets response data', () => {
+    it('Sets response data', () => {
       element._processListResponse(DataModel.generateThemes());
       assert.typeOf(element.themes, 'array');
       assert.lengthOf(element.themes, 5);
     });
 
-    test('Array items are a copy', () => {
+    it('Array items are a copy', () => {
       const items = DataModel.generateThemes();
       element._processListResponse(items);
       items[0].name = 'test';
       assert.notEqual(element.themes[0].name, 'test');
     });
 
-    test('Sets title from name if not exists', () => {
+    it('Sets title from name if not exists', () => {
       const items = DataModel.generateThemes();
       items[0].title = undefined;
       element._processListResponse(items);
@@ -236,30 +226,30 @@
     });
   });
 
-  suite('refresh()', () => {
+  describe('refresh()', () => {
     let element;
-    setup(function() {
+    beforeEach(async () => {
       DataModel.listen();
-      element = fixture('NoAuto');
+      element = await basicFixture();
     });
 
-    teardown(() => {
+    afterEach(async () => {
       DataModel.unlisten();
     });
 
-    test('Calls _dispatchListEvent()', () => {
+    it('Calls _dispatchListEvent()', () => {
       const spy = sinon.spy(element, '_dispatchListEvent');
       element.refresh();
       assert.isTrue(spy.called);
     });
 
-    test('Returns a promise', () => {
+    it('Returns a promise', () => {
       const result = element.refresh();
       assert.typeOf(result.then, 'function');
       return result;
     });
-
-    test('Calls _processListResponse() with result', () => {
+-
+    it('Calls _processListResponse() with result', () => {
       const spy = sinon.spy(element, '_processListResponse');
       return element.refresh()
       .then(() => {
@@ -268,7 +258,7 @@
       });
     });
 
-    test('Calls getActiveTheme()', () => {
+    it('Calls getActiveTheme()', () => {
       const spy = sinon.spy(element, 'getActiveTheme');
       return element.refresh()
       .then(() => {
@@ -276,25 +266,20 @@
       });
     });
 
-    test('Rejects when event is not handled', () => {
+    it('renders error toast when no model', async () => {
       DataModel.unlisten();
-      return element.refresh()
-      .then(() => {
-        throw new Error('Should not resolve');
-      })
-      .catch((cause) => {
-        assert.notEqual(cause.message, 'Should not resolve');
-      });
+      await element.refresh();
+      assert.isTrue(element.shadowRoot.querySelector('#errorToast').opened);
     });
 
-    test('Calls _handlePromiseError() when model error', () => {
+    it('Calls _handleException() when model error', () => {
       DataModel.unlisten();
       window.addEventListener('themes-list', function f(e) {
         window.removeEventListener('themes-list', f);
         e.preventDefault();
         e.detail.result = Promise.reject(new Error('test'));
       });
-      const spy = sinon.spy(element, '_handlePromiseError');
+      const spy = sinon.spy(element, '_handleException');
       return element.refresh()
       .then(() => {
         assert.isTrue(spy.called);
@@ -302,93 +287,83 @@
     });
   });
 
-  suite('_handlePromiseError()', () => {
+  describe('_handleException()', () => {
     let element;
-    setup(function() {
-      element = fixture('NoAuto');
+    beforeEach(async () => {
+      element = await basicFixture();
     });
 
-    test('Openms the toast with message', () => {
-      element._handlePromiseError({
-        message: 'test'
-      });
-      assert.isTrue(element.$.errorToast.opened);
-      assert.equal(element.$.errorToast.text, 'test');
-    });
+    it('Opens the toast with message', () => {
+      element._handleException('test');
 
-    test('Sets default message', () => {
-      element._handlePromiseError({});
-      assert.equal(element.$.errorToast.text, 'Theme data loading error.');
+      assert.isTrue(element.shadowRoot.querySelector('#errorToast').opened);
+      assert.equal(element.shadowRoot.querySelector('#errorToast').text, 'test');
     });
   });
 
-  suite('_computeIsDefault()', () => {
-    let record;
+  describe('#isDefaultTheme', () => {
     let element;
-    setup(function() {
-      element = fixture('NoAuto');
-      record = {
-        base: DataModel.generateThemes()
-      };
+    beforeEach(async () => {
+      element = await basicFixture();
     });
 
-    test('Returns true if selected is default theme', () => {
-      const result = element._computeIsDefault(record, 'advanced-rest-client/arc-electron-default-theme');
-      assert.isTrue(result);
+    it('Returns true if selected is default theme', () => {
+      element.themes = DataModel.generateThemes();
+      element.activeTheme = 'advanced-rest-client/arc-electron-default-theme';
+      assert.isTrue(element.isDefaultTheme);
     });
 
-    test('Returns false for other themes', () => {
-      const result = element._computeIsDefault(record, record.base[1]._id);
-      assert.isFalse(result);
+    it('Returns false for other themes', () => {
+      element.themes = DataModel.generateThemes();
+      element.activeTheme = element.themes[1]._id;
+      assert.isFalse(element.isDefaultTheme);
     });
 
-    test('Returns false if theme has not isDefault', () => {
-      record.base[1].isDefault = undefined;
-      const result = element._computeIsDefault(record, record.base[1]._id);
-      assert.isFalse(result);
+    it('Returns false if theme has not isDefault', () => {
+      element.themes = DataModel.generateThemes();
+      element.themes[1].isDefault = undefined;
+      element.activeTheme = element.themes[1]._id;
+
+      assert.isFalse(element.isDefaultTheme);
     });
 
-    test('Returns false if theme do not exists', () => {
-      const result = element._computeIsDefault(record, 'unknown-theme');
-      assert.isFalse(result);
+    it('Returns false if theme do not exists', () => {
+      element.themes = DataModel.generateThemes();
+      element.activeTheme = 'unknown-theme';
+      assert.isFalse(element.isDefaultTheme);
     });
 
-    test('Returns false if no activeTheme', () => {
-      const result = element._computeIsDefault(record);
-      assert.isFalse(result);
-    });
-
-    test('Returns false if no record', () => {
-      const result = element._computeIsDefault(undefined, 'test');
-      assert.isFalse(result);
+    it('Returns false if no activeTheme', () => {
+      element.themes = DataModel.generateThemes();
+      assert.isFalse(element.isDefaultTheme);
     });
   });
 
-  suite('getActiveTheme()', () => {
+  describe('getActiveTheme()', () => {
     let element;
-    setup(function() {
+    beforeEach(async () => {
       DataModel.listen();
-      element = fixture('NoAuto');
+      element = await basicFixture();
     });
 
-    teardown(() => {
+    afterEach(async () => {
       DataModel.unlisten();
     });
 
-    test('Calls _dispatchActiveInfoEvent()', () => {
+    it('Calls _dispatchActiveInfoEvent()', () => {
       const spy = sinon.spy(element, '_dispatchActiveInfoEvent');
       element.getActiveTheme();
       assert.isTrue(spy.called);
     });
 
-    test('Sets active theme info', () => {
+    it('Sets active theme info', () => {
       return element.getActiveTheme()
       .then(() => {
         assert.equal(element.activeTheme, DataModel.defaultTheme._id);
       });
     });
 
-    test('Won\'t call _dispatchActivateEvent()', () => {
+    it('Won\'t call _dispatchActivateEvent()', () => {
       const spy = sinon.spy(element, '_dispatchActivateEvent');
       return element.getActiveTheme()
       .then(() => {
@@ -396,25 +371,20 @@
       });
     });
 
-    test('Rejects when event is not handled', () => {
+    it('opens error when event is not handled', async () => {
       DataModel.unlisten();
-      return element.getActiveTheme()
-      .then(() => {
-        throw new Error('Should not resolve');
-      })
-      .catch((cause) => {
-        assert.notEqual(cause.message, 'Should not resolve');
-      });
+      await element.getActiveTheme()
+      assert.isTrue(element.shadowRoot.querySelector('#errorToast').opened);
     });
 
-    test('Calls _handlePromiseError() when model error', () => {
+    it('Calls _handleException() when model error', () => {
       DataModel.unlisten();
       window.addEventListener('theme-active-info', function f(e) {
         window.removeEventListener('theme-active-info', f);
         e.preventDefault();
         e.detail.result = Promise.reject(new Error('test'));
       });
-      const spy = sinon.spy(element, '_handlePromiseError');
+      const spy = sinon.spy(element, '_handleException');
       return element.getActiveTheme()
       .then(() => {
         assert.isTrue(spy.called);
@@ -422,14 +392,14 @@
     });
   });
 
-  suite('_activatedHandler()', () => {
+  describe('_activatedHandler()', () => {
     let element;
-    setup(function() {
-      element = fixture('NoAuto');
+    beforeEach(async () => {
+      element = await basicFixture();
       element.themes = DataModel.generateThemes();
     });
 
-    test('Sets activeTheme from theme-activated event', () => {
+    it('Sets activeTheme from theme-activated event', () => {
       document.body.dispatchEvent(new CustomEvent('theme-activated', {
         bubbles: true,
         detail: {
@@ -439,7 +409,7 @@
       assert.equal(element.activeTheme, element.themes[1]._id);
     });
 
-    test('Ignores event when id is not set', () => {
+    it('Ignores event when id is not set', () => {
       document.body.dispatchEvent(new CustomEvent('theme-activated', {
         bubbles: true,
         detail: {}
@@ -447,7 +417,7 @@
       assert.isUndefined(element.activeTheme);
     });
 
-    test('Skips setter when already active', () => {
+    it('Skips setter when already active', () => {
       // for coverage
       element.activeTheme = element.themes[1]._id;
       document.body.dispatchEvent(new CustomEvent('theme-activated', {
@@ -460,14 +430,14 @@
     });
   });
 
-  suite('_selectionChanged()', () => {
+  describe('_selectionChanged()', () => {
     let element;
-    setup(function() {
-      element = fixture('NoAuto');
+    beforeEach(async () => {
+      element = await basicFixture();
       element.themes = DataModel.generateThemes();
     });
 
-    test('Does nothing when __cancelChange is set', () => {
+    it('Does nothing when __cancelChange is set', () => {
       element.__cancelChange = true;
       const spy = sinon.spy(element, '_dispatchActivateEvent');
       element._selectionChanged({
@@ -478,16 +448,16 @@
       assert.isFalse(spy.called);
     });
 
-    test('Opens noSelection toast when theme not found', () => {
+    it('Opens noSelection toast when theme not found', () => {
       element._selectionChanged({
         detail: {
           value: 'unknown'
         }
       });
-      assert.isTrue(element.$.noSelection.opened);
+      assert.isTrue(element.shadowRoot.querySelector('#errorToast').opened);
     });
 
-    test('Calls _dispatchActivateEvent() with an argument', () => {
+    it('Calls _dispatchActivateEvent() with an argument', () => {
       const spy = sinon.spy(element, '_dispatchActivateEvent');
       element._selectionChanged({
         detail: {
@@ -499,12 +469,12 @@
     });
   });
 
-  suite('_install()', () => {
+  describe('_install()', () => {
     let element;
-    setup(function(done) {
-      element = fixture('NoAuto');
+    beforeEach(async () => {
+      element = await basicFixture();
       element._themeInstall = 'test-theme';
-      flush(() => done());
+
     });
 
     function handler(e) {
@@ -520,30 +490,24 @@
       e.detail.result = Promise.reject(new Error('test'));
     }
 
-    teardown(() => {
+    afterEach(async () => {
       window.removeEventListener('theme-install', handler);
       window.removeEventListener('theme-install', errorHandler);
     });
 
-    test('Rejects when no name', () => {
+    it('opens error when no name', async () => {
       element._themeInstall = '';
-      return element._install()
-      .then(() => {
-        throw new Error('Should not resolve.');
-      })
-      .catch((cause) => {
-        assert.typeOf(cause.message, 'string');
-        assert.equal(cause.message, 'Name not set');
-      });
+      await element._install();
+      assert.isTrue(element.shadowRoot.querySelector('#errorToast').opened);
     });
 
-    test('Opens noName toast when no name', () => {
+    it('Opens noName toast when no name', () => {
       element._themeInstall = '';
       element._install().catch(() => {});
-      assert.isTrue(element.$.noName.opened);
+      assert.isTrue(element.shadowRoot.querySelector('#errorToast').opened);
     });
 
-    test('Dispatches theme-install event', () => {
+    it('Dispatches theme-install event', () => {
       window.addEventListener('theme-install', handler);
       const spy = sinon.spy();
       element.addEventListener('theme-install', spy);
@@ -554,29 +518,23 @@
       });
     });
 
-    test('Rejects when theme-install event is not handled', () => {
-      return element._install()
-      .then(() => {
-        throw new Error('Should not resolve.');
-      })
-      .catch((cause) => {
-        assert.typeOf(cause.message, 'string');
-        assert.equal(cause.message, 'Model not found');
-      });
+    it('opens error when theme-install event is not handled', async () => {
+      await element._install();
+      assert.isTrue(element.shadowRoot.querySelector('#errorToast').opened);
     });
 
-    test('Opens noModel toast when event is not handled', () => {
+    it('Opens noModel toast when event is not handled', () => {
       element._install().catch(() => {});
-      assert.isTrue(element.$.noModel.opened);
+      assert.isTrue(element.shadowRoot.querySelector('#errorToast').opened);
     });
 
-    test('Sets _installPending property', () => {
+    it('Sets _installPending property', () => {
       window.addEventListener('theme-install', handler);
       element._install().catch(() => {});
       assert.isTrue(element._installPending);
     });
 
-    test('Resets _installPending property', () => {
+    it('Resets _installPending property', () => {
       window.addEventListener('theme-install', handler);
       return element._install()
       .then(() => {
@@ -584,7 +542,7 @@
       });
     });
 
-    test('Creates themes array', () => {
+    it('Creates themes array', () => {
       window.addEventListener('theme-install', handler);
       return element._install()
       .then(() => {
@@ -592,7 +550,7 @@
       });
     });
 
-    test('Adds new theme to the list', () => {
+    it('Adds new theme to the list', () => {
       element.themes = DataModel.generateThemes();
       window.addEventListener('theme-install', handler);
       return element._install()
@@ -601,7 +559,7 @@
       });
     });
 
-    test('Resets _installPending property when process error', () => {
+    it('Resets _installPending property when process error', () => {
       window.addEventListener('theme-install', errorHandler);
       return element._install()
       .then(() => {
@@ -609,9 +567,9 @@
       });
     });
 
-    test('Calles _handlePromiseError() when process error', () => {
+    it('Calles _handleException() when process error', () => {
       window.addEventListener('theme-install', errorHandler);
-      const spy = sinon.spy(element, '_handlePromiseError');
+      const spy = sinon.spy(element, '_handleException');
       return element._install()
       .then(() => {
         assert.isTrue(spy.called);
@@ -619,14 +577,14 @@
     });
   });
 
-  suite('_uninstall()', () => {
+  describe('_uninstall()', () => {
     let element;
-    setup(function(done) {
-      element = fixture('NoAuto');
+    beforeEach(async () => {
+      element = await basicFixture();
       element.themes = DataModel.generateThemes();
       // Not default theme
       element.activeTheme = element.themes[1]._id;
-      flush(() => done());
+
     });
 
     function handler(e) {
@@ -639,31 +597,25 @@
       e.detail.result = Promise.reject(new Error('test'));
     }
 
-    teardown(() => {
+    afterEach(async () => {
       window.removeEventListener('theme-uninstall', handler);
       window.removeEventListener('theme-uninstall', errorHandler);
     });
 
-    test('Rejects when isDefaultTheme', () => {
+    it('opens error when isDefaultTheme', async () => {
       element.activeTheme = element.themes[0]._id;
       assert.isTrue(element.isDefaultTheme);
-      return element._uninstall()
-      .then(() => {
-        throw new Error('Should not resolve.');
-      })
-      .catch((cause) => {
-        assert.typeOf(cause.message, 'string');
-        assert.equal(cause.message, 'Cannot delete default theme');
-      });
+      await element._uninstall();
+      assert.isTrue(element.shadowRoot.querySelector('#errorToast').opened);
     });
 
-    test('Opens defaultDelete toast when no name', () => {
+    it('Opens defaultDelete toast when no name', () => {
       element.activeTheme = element.themes[0]._id;
       element._uninstall().catch(() => {});
-      assert.isTrue(element.$.defaultDelete.opened);
+      assert.isTrue(element.shadowRoot.querySelector('#errorToast').opened);
     });
 
-    test('Dispatches theme-uninstall event', () => {
+    it('Dispatches theme-uninstall event', () => {
       window.addEventListener('theme-uninstall', handler);
       const spy = sinon.spy();
       element.addEventListener('theme-uninstall', spy);
@@ -674,29 +626,23 @@
       });
     });
 
-    test('Rejects when theme-uninstall event is not handled', () => {
-      return element._uninstall()
-      .then(() => {
-        throw new Error('Should not resolve.');
-      })
-      .catch((cause) => {
-        assert.typeOf(cause.message, 'string');
-        assert.equal(cause.message, 'Model not found');
-      });
+    it('opens error when theme-uninstall event is not handled', async () => {
+      await element._uninstall()
+      assert.isTrue(element.shadowRoot.querySelector('#errorToast').opened);
     });
 
-    test('Opens noModel toast when event is not handled', () => {
+    it('Opens noModel toast when event is not handled', () => {
       element._uninstall().catch(() => {});
-      assert.isTrue(element.$.noModel.opened);
+      assert.isTrue(element.shadowRoot.querySelector('#errorToast').opened);
     });
 
-    test('Sets _installPending property', () => {
+    it('Sets _installPending property', () => {
       window.addEventListener('theme-uninstall', handler);
       element._uninstall().catch(() => {});
       assert.isTrue(element._installPending);
     });
 
-    test('Resets _installPending property', () => {
+    it('Resets _installPending property', () => {
       window.addEventListener('theme-uninstall', handler);
       return element._uninstall()
       .then(() => {
@@ -704,7 +650,7 @@
       });
     });
 
-    test('Resets _installPending property when process error', () => {
+    it('Resets _installPending property when process error', () => {
       window.addEventListener('theme-uninstall', errorHandler);
       return element._uninstall()
       .then(() => {
@@ -712,25 +658,22 @@
       });
     });
 
-    test('Calles _handlePromiseError() when process error', () => {
+    it('Calles _handleException() when process error', () => {
       window.addEventListener('theme-uninstall', errorHandler);
-      const spy = sinon.spy(element, '_handlePromiseError');
+      const spy = sinon.spy(element, '_handleException');
       return element._uninstall()
       .then(() => {
         assert.isTrue(spy.called);
       });
     });
 
-    test('Calls _dispatchActivateEvent() with argument', () => {
+    it('Calls _dispatchActivateEvent()', () => {
       window.addEventListener('theme-uninstall', handler);
       const spy = sinon.spy(element, '_dispatchActivateEvent');
       return element._uninstall()
       .then(() => {
         assert.isTrue(spy.called, 'Event called');
-        assert.equal(spy.args[0][0], element.defaultThemeName);
       });
     });
   });
-  </script>
-</body>
-</html>
+});

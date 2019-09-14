@@ -5,10 +5,10 @@
  *   https://github.com/Polymer/tools/tree/master/packages/gen-typescript-declarations
  *
  * To modify these typings, edit the source file(s):
- *   themes-panel.js
+ *   src/styles.js
  */
 
 
 // tslint:disable:variable-name Describing an API that's defined elsewhere.
 
-import {ThemesPanel} from './src/ThemesPanel.js';
+import {css} from 'lit-element';

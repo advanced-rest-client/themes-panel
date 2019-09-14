@@ -1,26 +1,59 @@
-[![Build Status](https://travis-ci.org/advanced-rest-client/api-url-data-model.svg?branch=stage)](https://travis-ci.org/advanced-rest-client/themes-panel)
+[![Published on NPM](https://img.shields.io/npm/v/@advanced-rest-client/themes-panel.svg)](https://www.npmjs.com/package/@advanced-rest-client/themes-panel)
+
+[![Build Status](https://travis-ci.org/advanced-rest-client/themes-panel.svg?branch=stage)](https://travis-ci.org/advanced-rest-client/themes-panel)
 
 [![Published on webcomponents.org](https://img.shields.io/badge/webcomponents.org-published-blue.svg)](https://www.webcomponents.org/element/advanced-rest-client/themes-panel)
 
 # themes-panel
 
-A panel to display themes installed in the application
+A panel to render themes installed in Advanced REST Client.
 
-<!---
-```
-<custom-element-demo>
-  <template>
-    <link rel="import" href="themes-panel.html">
-    <next-code-block></next-code-block>
-  </template>
-</custom-element-demo>
-```
--->
+This panel does not have own model in ARC datastore as themes are handled differently in Electron and Chrome App.
+Each version of the application handles events but it's own.
 
-```html
-<themes-panel></themes-panel>
+## Usage
+
+### Installation
+```
+npm install --save @advanced-rest-client/themes-panel
 ```
 
-### API components
+### In a LitElement
 
-This components is a part of API components ecosystem: https://elements.advancedrestclient.com/
+```js
+import { LitElement, html } from 'lit-element';
+import '@advanced-rest-client/themes-panel/themes-panel.js';
+
+class SampleElement extends LitElement {
+  render() {
+    return html`
+    <themes-panel></themes-panel>
+    `;
+  }
+}
+customElements.define('sample-element', SampleElement);
+```
+
+## Development
+
+```sh
+git clone https://github.com/advanced-rest-client/themes-panel
+cd themes-panel
+npm install
+```
+
+### Running the demo locally
+
+```sh
+npm start
+```
+
+### Running the tests
+
+```sh
+npm test
+```
+
+## API components
+
+This components is a part of [API components ecosystem](https://elements.advancedrestclient.com/)

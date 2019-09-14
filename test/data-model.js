@@ -1,5 +1,6 @@
+import 'chance/chance.js';
 /* global chance */
-const DataModel = {};
+export const DataModel = {};
 DataModel.defaultTheme = {
   description: 'Advanced REST Client default theme',
   isDefault: true,
