@@ -312,6 +312,9 @@ export class ThemesPanel extends LitElement {
       return;
     }
     const id = e.detail.value;
+    if (this.activeTheme === id) {
+      return;
+    }
     const index = this.themes.findIndex((i) => i._id === id);
     if (index === -1) {
       return;
